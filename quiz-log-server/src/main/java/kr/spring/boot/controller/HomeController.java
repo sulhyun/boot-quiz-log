@@ -10,7 +10,7 @@ public class HomeController {
 	@GetMapping("/")
 	public String home(Model model) {
 		System.out.println("메인 페이지 진입");
-		model.addAttribute("name", "홍길동11");
+		model.addAttribute("name", "홍길동");
 		return "home";
 	}
 	
