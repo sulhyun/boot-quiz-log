@@ -16,9 +16,10 @@
 				<p class="title-text">회원가입</p>
 				<p>가입을 통해 다양한 서비스를 경험하세요!!</p>
 			</div>
-			<form method="post" action="/mamber/signup" id="form">
+			<form method="post" action="/member/signup" id="form">
 				<div class="form-group">
 					<label for="id">아이디</label>
+					<span class="error-message text-danger" id="error-id"></span>
 					<div class="input-group">
 						<input type="text" class="form-control" id="id" name="mb_id" placeholder="아이디 입력 (6~20)자" />
 						<div class="input-group-append">
@@ -29,22 +30,27 @@
 				<input type="hidden" id="id-check" value="n" /> <!-- 중복검사 상태 기본값(n) -->
 				<div class="form-group">
 					<label for="pw">비밀번호</label>
+					<span class="error-message text-danger" id="error-pw"></span>
 					<input type="password" class="form-control" id="pw" name="mb_pw" placeholder="비밀번호 입력 (영문, 숫자, 특수문자 포함 6~20)자" />
 				</div>
 				<div class="form-group">
 					<label for="pw2">비밀번호 확인</label>
+					<span class="error-message text-danger" id="error-pw2"></span>
 					<input type="password" class="form-control" id="pw2" name="mb_pw2" />
 				</div>
 				<div class="form-group">
 					<label for="name">이름</label>
+					<span class="error-message text-danger" id="error-name"></span>
 					<input type="text" class="form-control" id="name" name="mb_name" />
 				</div>
 				<div class="form-group">
 					<label for="nick">닉네임</label>
+					<span class="error-message text-danger" id="error-nick"></span>
 					<input type="text" class="form-control" id="nick" name="mb_nick" />
 				</div>
 				<div class="form-group">
 					<label for="hp">전화번호</label>
+					<span class="error-message text-danger" id="error-hp"></span>
 					<input type="text" class="form-control" id="hp" name="mb_hp" maxlength="11" />
 				</div>
 				<div class="form-group">
@@ -57,6 +63,7 @@
 							<option value="">직접 입력</option>
 							<option value="naver.com">naver.com</option>
 							<option value="gmail.com">gmail.com</option>
+							<option value="daum.net">daum.net</option>
 							<option value="nate.com">nate.com</option>
 						</select>
 					</div>
@@ -78,7 +85,7 @@
 				    <input type="text" class="form-control" id="addr2" name="mb_addr2"  maxlength="40">
 				</div>
 				<div class="form-group">
-					<label for="birth"><b>생년월일</b></label>
+					<label for="birth">생년월일</label>
 					<div class="input-group">
 						<select class="form-control mr-2" id="birth-year">
 							<option value="">년도</option>
@@ -96,6 +103,361 @@
 				<button type="submit" class="btn btn-outline-info col-12">회원가입</button>
 			</form>
 		</div>
+		<script>
+			/* =============== 이메일 도메인 선택 ===============*/
+			const domainList = document.getElementById('domain-list');
+			
+			domainList.addEventListener('change', function () {
+				const domainInput = document.getElementById('email-domain');
+				const selectedDomain = this.value;
+			
+				if (selectedDomain) {
+					domainInput.value = selectedDomain;
+					domainInput.readOnly = true;
+				} else {
+					domainInput.value = '';
+					domainInput.readOnly = false;
+				}
+			}); // option 선택을 하면 내용을 input에 옮기고 readonly하는 이벤트 직접 연결
+			
+			/* =============== 생년월일 선택 =============== */
+			const birthYear = document.getElementById('birth-year');
+			const birthMonth = document.getElementById('birth-month');
+			const birthDay = document.getElementById('birth-day');
+			
+			let isYear = false;
+			let isMonth = false;
+			
+			const currentYear = new Date().getFullYear();
+
+			birthYear.addEventListener('focus', function() {
+				if(!isYear) {
+					isYear = true;
+					for(let i = 1940; i <= currentYear; i++) {
+						const optionYear = document.createElement('option');
+						optionYear.value = i;
+						optionYear.textContent = i;
+						
+						birthYear.appendChild(optionYear);
+					}
+				}
+			}); // 1940년 ~ 현재년도까지 option 생성하는 이벤트
+			
+			birthMonth.addEventListener('focus', function() {
+				if(!isMonth) {
+					isMonth = true;
+					for(let i = 1; i <= 12; i++) {
+						const optionMonth = document.createElement('option');
+						optionMonth.value = i;
+						optionMonth.textContent = i;
+						
+						birthMonth.appendChild(optionMonth);
+					}
+				}
+			}); // 1월 ~ 12월까지 option 생성하는 이벤트
+			
+			birthDay.disabled = true;
+			
+			function updateDay() {
+				birthDay.innerHTML = '<option value="">일</option>';
+				
+				const selectedYear = parseInt(birthYear.value);
+				const selectedMonth = parseInt(birthMonth.value);
+				
+				if(!selectedYear || !selectedMonth) {
+					birthDay.disabled = true;
+					return;
+				}
+				
+				const lastDateInMonth = new Date(selectedYear, selectedMonth, 0).getDate();
+				
+				for (let i = 1; i <= lastDateInMonth; i++) {
+			        const dayOption = document.createElement('option');
+			        dayOption.value = i;
+			        dayOption.textContent = i;
+			        birthDay.appendChild(dayOption);
+			    }
+				
+				birthDay.disabled = false;
+			} // 해당 월에 날짜 수를 option 생성하는 함수
+			
+			birthYear.addEventListener('change', updateDay);  // 직접 연결
+			birthMonth.addEventListener('change', updateDay); // 직접 연결
+			
+			/* =============== 아이디 중복 검사 =============== */
+			function checkId() {
+				const mb_id = document.getElementById('id').value.trim();
+				const errId = document.getElementById('error-id');
+				const idCheck = document.getElementById('id-check');
+				
+				if(!/^\w{6,20}$/.test(mb_id)){
+					return;
+				}
+				
+				axios.get('/member/checkId', {
+					params: {mb_id : mb_id}
+				})
+				.then(function(response) {
+					const data = response.data;
+					if (data === true) {
+						errId.textContent = "사용 가능한 아이디입니다.";
+			            idCheck.value = 'y';
+			        } else {
+			        	errId.textContent = "이미 사용 중인 아이디입니다.";
+			            idCheck.value = 'n';
+			        }
+				})
+				.catch(function(err) {
+					console.log(err);
+				});
+			} // Axios 통신으로 서버에서 아이디 중복 검사하는 함수
+			
+			function changeId() {
+				const errId = document.getElementById('error-id');
+				const idCheck = document.getElementById('id-check');
+				
+				if(errId.textContent !== '사용 가능한 아이디입니다.') {
+					idCheck.value = 'n';
+				}
+			} // 사용자가 아이디를 지우고 다시 입력하면 'n'으로 업데이트하는 함수
+			
+			document.getElementById('id').addEventListener('input', changeId); // 직접 연결
+			
+			/* =============== 이메일 인증 =============== */
+			document.getElementById('email-code').addEventListener('click', emailRegex); // 직접 연결
+			
+			function emailRegex() {
+				const pattern = /^[A-Za-z0-9_\.\-]+@[A-Za-z0-9\-]+\.[A-za-z0-9\-]+$/;
+				const email = document.getElementById('email-input').value;
+				const domain = document.getElementById('email-domain').value;
+				const mb_email = email + '@' + domain;
+				
+				if(pattern.test(mb_email) === false) {
+					alert('이메일 형식이 일치하지 않습니다.');
+					return;
+				} else {
+					document.getElementById('email-input').readonly = true;
+					document.getElementById('email-domain').readonly = true;
+					document.getElementById('domain-list').disabled = true;
+					getEmailCode(mb_email);
+					alert('이메일을 전송하였습니다. 잠시만 기다려주세요.');
+					return;
+				}
+			} // 이메일 정규표현식 확인 및 사용자한테 인증코드 보내기
+			
+			function getEmailCode(mb_email) {
+				axios.post('/mail/setCode', {
+					mb_email: mb_email
+				})
+				.then(function(response) {
+					const data = response.data;
+					if(data === true) {
+						displayInputCode();
+						
+						const emailCode = document.getElementById('email-code');
+						emailCode.disabled = true;
+						emailCode.classList.remove('btn-outline-info');
+						emailCode.classList.add('btn-outline-dark');
+						emailCode.style.backgroundColor = '#d3d3d3';
+						startTimer(300, mb_email);
+					}
+				})
+				.catch(function(error) {
+					console.log(error);
+					alert('이메일 전송 실패\n문제가 계속되면 관리자한테 문의하세요.');
+					document.getElementById('email-input').readOnly = false;
+					document.getElementById('email-domain').readOnly = false;
+					document.getElementById('domain-list').disabled = false;
+				})
+			} // 이메일 인증 코드 보내는 Axios
+			
+			function displayInputCode(){
+				str = `
+					<div class="input-group">
+						<input type="text" class="form-control" id="code"  placeholder="인증번호">
+						<div class="input-group-append">
+							<input type="button" class="btn btn-outline-info" id="code-check" value="확인" >
+						</div>
+					</div>
+				`;
+				document.getElementById('code-input').innerHTML = str;
+			} // 이메일 인증 코드 입력 및 확인 버튼
+			
+			document.addEventListener('click', function(e) {
+				if(e.target?.id === 'code-check') {
+					checkEmailCode();
+				}
+			}); // 동적으로 추가된 요소이기 때문에 이벤트 위임
+			
+			function checkEmailCode() {
+				const email = document.getElementById('email-input').value;
+				const domain = document.getElementById('email-domain').value;
+				const mb_email = email + '@' + domain;
+				const code = document.getElementById('code').value;
+				
+				axios.post('/mail/getCode', {
+					mb_email: mb_email,
+					code: code
+				})
+				.then(function(response) {
+					const data = response.data;
+					if(data === true) {
+						document.getElementById('code').readOnly = true;
+						document.getElementById('code-check').remove();
+						document.getElementById('email-check').value = 'y';
+						alert('이메일 인증 성공');
+						clearInterval(timerInterval);
+						delEmailCode(mb_email);
+					} else {
+						alert('잘못된 코드입니다. 다시 확인해주세요.');
+					}
+				})
+				.catch(function(error) {
+					console.log(error);
+					alert('이메일 인증 실패\n문제가 계속된다면 관리자한테 문의하세요.');
+				});
+			} // 사용자가 입력한 코드가 DB에 있는 코드와 같은지 확인
+			
+			function delEmailCode(mb_email) {
+				axios.post('/mail/delCode', {
+					mb_email: mb_email
+				})
+				.then(function(response) {
+					const data = response.data;
+					console.log(data);
+				})
+				.catch(function(error) {
+					console.log(error);
+				})
+			} // 처리가 끝난 인증 코드 삭제
+			
+			let timerInterval;
+			
+			function startTimer(duration, mb_email) {
+				let timer = duration, minutes, seconds;
+				timerInterval = setInterval(function() {
+					minutes = parseInt(timer / 60, 10);
+					seconds = parseInt(timer % 60, 10);
+					
+					minutes = minutes < 10 ? "0" + minutes : minutes;
+					seconds = seconds < 10 ? "0" + seconds : seconds;
+					
+					const timerElement = document.getElementById('timer');
+					timerElement.textContent = "이메일 전송 완료! 인증 가능 시간 " + minutes + ":" + seconds;
+					
+					if(--timer < 0) {
+						clearInterval(timerInterval);
+						timerElement.textContent = '인증 시간이 만료되었습니다.';
+						delEmailCode(mb_email);
+						alert('이메일 인증 시간이 만료되었습니다. 다시 시도해 주세요.');
+						// 버튼 활성화
+						const emailCode = document.getElementById('email-code');
+						emailCode.disabled = false;
+						emailCode.classList.remove('btn-outline-dark');
+						emailCode.classList.add('btn-outline-info');
+						emailCode.removeAttribute('style');
+						// 이메일 입력창 활성화
+						document.getElementById('email-input').readOnly = false;
+						document.getElementById('email-domain').readOnly = false;
+						document.getElementById('domain-list').disabled = false;
+						// 인증 코드 필드 제거
+						document.getElementById('code').remove();
+						document.getElementById('code-check').remove();
+					}
+				}, 1000);
+			} // 인증 코드 제한 시간
+		</script>
+		
+		<script type="text/javascript">
+			$('#form').validate({
+				rules : {
+					mb_id : {
+						required : true,
+						regex : /^\w{6,20}$/
+					},
+					mb_pw : {
+						required : true,
+						regex : /^[a-zA-Z0-9!@#$]{6,20}$/
+					},
+					mb_pw2 : {
+						equalTo : pw
+					},
+					mb_name : {
+						required : true
+					},
+					mb_nick : {
+						required : true
+					},
+					mb_hp : {
+						required : true,
+						regex: /^010-\d{4}-\d{4}$/
+					}
+				},
+				messages : {
+					mb_id : {
+						required : '필수 항목입니다.',
+						regex : '영어, 숫자만 가능하며, 6~20자이어야 합니다.'
+					},
+					mb_pw : {
+						required : '필수 항목입니다.',
+						regex : '영어, 숫자, 특수문자(!@#$)만 가능하며, 6~20자이어야 합니다.'
+					},
+					mb_pw2 : {
+						equalTo : '비번과 일치하지 않습니다.'
+					},
+					mb_name : {
+						required : '필수 항목입니다.'
+					},
+					mb_nick : {
+						required : ' 필수 항목입니다.'
+					},
+					mb_hp : {
+						required : '필수 항목입니다.',
+					}
+				},
+			    errorPlacement: function (error, element) {
+			        var errorId = 'error-' + $(element).attr('id');
+			        $('#' + errorId).html(error).removeClass("text-success").addClass("text-danger");
+			    },
+			    success: function (label, element) {
+			        var errorId = 'error-' + $(element).attr('id');
+			        $('#' + errorId).html('').removeClass("text-danger").addClass("text-success");
+			    },
+				submitHandler : function(form){
+					let id2 = $('#id-check').val();
+					let email2 = $('#email-check').val();
+					if(id2 != 'y') {
+						alert('아이디 중복검사를 진행해 주세요.');
+						$('#id').focus();
+						return false;
+					}
+					if(email2 != 'y') {
+						alert("이메일 인증을 진해해 주세요.");
+						$('#email-input').focus();
+						return false;
+					}
+					// 이메일
+					const email = $('#email-input').val();
+					const domain = $('#email-domain').val();
+					const mb_email = email + '@' + domain;
+					
+					// 생년월일
+					const birthYear = $('#birth-year').val();
+					const birthMonth = $('#birth-month').val().padStart(2, '0');
+					const birthDay = $('#birth-day').val().padStart(2, '0');
+					const mb_birth = birthYear + '-' + birthMonth + '-' + birthDay;
+					
+					// 히든 요소의 value값에 가공된 변수들 넣어주기
+					$('#email').val(mb_email);
+					$('#birth').val(mb_birth);
+					form.submit();
+				}
+			});
+			$.validator.addMethod('regex', function(value, element, regex){
+				var re = new RegExp(regex);
+				return this.optional(element) || re.test(value);
+			}, "정규표현식을 확인하세요.");
+		</script>
 	</main>
 </body>
 </html>
