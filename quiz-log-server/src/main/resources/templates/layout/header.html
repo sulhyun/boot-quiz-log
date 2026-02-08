@@ -16,34 +16,37 @@
 				<ul class="menu-list">
 					 <th:block sec:authorize="isAnonymous()">
 					    <!-- 로그인을 못한 사용자 -->
-					    
+					    <li class="menu-item">
+							<a class="menu-link" href="/member/signin">로그인</a>
+						</li>
+						<li class="menu-item">
+							<a class="menu-link" href="/member/signup">회원가입</a>
+						</li>
 					 </th:block>
 					 <th:block sec:authorize="isAuthenticated()">
 					    <!-- 로그인 한 사용자 -->
-					    
+					    <li class="menu-item">
+							<a class="menu-link" href="#">마이페이지</a>
+						</li>
+						<li class="menu-item">
+							<a class="menu-link" href="#">로그아웃</a>
+						</li>
 					 </th:block>
 					 <th:block sec:authorize="hasRole('ADMIN')">
 					    <!-- 관리자 -->
-					    
+					    <li class="menu-item">
+							<a class="menu-link" href="#">관리자</a>
+						</li>
 					 </th:block>
-					<li class="menu-item">
-						<a class="menu-link" href="#">관리자</a>
-					</li>
-					<li class="menu-item">
-						<a class="menu-link" href="#">마이페이지</a>
-					</li>
-					<li class="menu-item">
-						<a class="menu-link" href="#">로그아웃</a>
-					</li>
-					<li class="menu-item">
-						<a class="menu-link" href="#">로그인</a>
-					</li>
-					<li class="menu-item">
-						<a class="menu-link" href="/member/signup">회원가입</a>
-					</li>
+					 
 				</ul>
 			</div>
 		</div>
+		<div style="background: yellow; color: black;">
+    로그인 여부: <span sec:authorize="isAuthenticated()">로그인됨</span>
+                <span sec:authorize="isAnonymous()">로그인안됨</span><br>
+    권한들: <span sec:authentication="principal.authorities"></span>
+</div>
 	</header>
 </body>
 </html>
