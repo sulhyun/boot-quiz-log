@@ -31,11 +31,11 @@ public class SecurityConfig{
                 .defaultSuccessUrl("/")
             )
             .logout((logout) -> logout
-            		.logoutUrl("/member/logout")
-            		.logoutSuccessUrl("/")
-            		.clearAuthentication(true)
-            		.invalidateHttpSession(true)
-            		.permitAll());  // 로그아웃도 모두 접근 가능
+        		.logoutUrl("/member/logout")
+        		.logoutSuccessUrl("/")
+        		.clearAuthentication(true)
+        		.invalidateHttpSession(true)
+        		.permitAll());  // 로그아웃도 모두 접근 가능
         return http.build();
     }
 
