@@ -47,7 +47,7 @@ public class MemberController {
 	
 	@GetMapping("/signin")
 	public String signin() {
-		System.out.println("Signin: POST");
+		System.out.println("Signin: GET");
 		return "/member/signin";
 	} // 로그인 페이지
 }
