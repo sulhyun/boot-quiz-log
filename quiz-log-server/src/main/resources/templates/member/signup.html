@@ -6,7 +6,7 @@
 >
 <head>
 	<meta charset="UTF-8">
-	<title>QNL : 회원가입</title>
+	<title>QLog : 회원가입</title>
 	<link rel="stylesheet" type="text/css" th:href="@{/css/member/signup.css}">
 </head>
 <body>
@@ -205,6 +205,8 @@
 			        } else {
 			        	errId.textContent = "이미 사용 중인 아이디입니다.";
 			            idCheck.value = 'n';
+			            errId.classList.remove("text-success");
+			            errId.classList.add("text-danger")
 			        }
 				})
 				.catch(function(err) {
@@ -366,8 +368,7 @@
 					}
 				}, 1000);
 			} // 인증 코드 제한 시간
-		</script>
-		
+		</script>	
 		<script type="text/javascript">
 			$('#form').validate({
 				rules : {
@@ -390,7 +391,7 @@
 					},
 					mb_hp : {
 						required : true,
-						regex: /^010-\d{4}-\d{4}$/
+						regex: /^010\d{4}\d{4}$/
 					}
 				},
 				messages : {
@@ -457,6 +458,45 @@
 				var re = new RegExp(regex);
 				return this.optional(element) || re.test(value);
 			}, "정규표현식을 확인하세요.");
+		</script>
+		<script src="//t1.daumcdn.net/mapjsapi/bundle/postcode/prod/postcode.v2.js"></script>
+	    <script>
+		    function execDaumPostcode() {
+		        new daum.Postcode({
+		            oncomplete: function(data) {
+		                // 팝업을 통한 검색 결과 항목 클릭 시 실행
+		                var addr = ''; // 주소_결과값이 없을 경우 공백 
+		                var extraAddr = ''; // 참고항목
+		
+		                //사용자가 선택한 주소 타입에 따라 해당 주소 값을 가져온다.
+		                if (data.userSelectedType === 'R') { // 도로명 주소를 선택
+		                    addr = data.roadAddress;
+		                } else { // 지번 주소를 선택
+		                    addr = data.jibunAddress;
+		                }
+		
+		                if(data.userSelectedType === 'R'){
+		                    if(data.bname !== '' && /[동|로|가]$/g.test(data.bname)){
+		                        extraAddr += data.bname;
+		                    }
+		                    if(data.buildingName !== '' && data.apartment === 'Y'){
+		                        extraAddr += (extraAddr !== '' ? ', ' + data.buildingName : data.buildingName);
+		                    }
+		                    if(extraAddr !== ''){
+		                        extraAddr = ' (' + extraAddr + ')';
+		                    }
+		                } else {
+		                    document.getElementById("addr").value = '';
+		                }
+		
+		                // 선택된 우편번호와 주소 정보를 input 박스에 넣는다.
+		                document.getElementById('zip').value = data.zonecode;
+		                document.getElementById("addr").value = addr;
+		                document.getElementById("addr").value += extraAddr;
+		                document.getElementById("addr2").focus(); // 우편번호 + 주소 입력이 완료되었음으로 상세주소로 포커스 이동
+		            }
+		        }).open();
+		    }
 		</script>
 	</main>
 </body>

@@ -30,11 +30,9 @@ public class MemberVO {
 	private String mb_login_method; // 회원이 어디 소셜 로그인인지?
 	
 	public String getMb_auth() {
-		String auth = "GUEST";
+		String auth;
 		int lev = this.mb_level;
-		if(lev == 4) {
-			auth = "QUIZ";
-		} else if(lev < 4) {
+		if(lev == 1) {
 			auth = "USER";
 		} else {
 			auth = "ADMIN";
