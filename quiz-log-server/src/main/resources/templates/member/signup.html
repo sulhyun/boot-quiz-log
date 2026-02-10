@@ -6,7 +6,7 @@
 >
 <head>
 	<meta charset="UTF-8">
-	<title>QNL : 회원가입</title>
+	<title>QLog : 회원가입</title>
 	<link rel="stylesheet" type="text/css" th:href="@{/css/member/signup.css}">
 </head>
 <body>
@@ -205,6 +205,8 @@
 			        } else {
 			        	errId.textContent = "이미 사용 중인 아이디입니다.";
 			            idCheck.value = 'n';
+			            errId.classList.remove("text-success");
+			            errId.classList.add("text-danger")
 			        }
 				})
 				.catch(function(err) {
@@ -366,8 +368,7 @@
 					}
 				}, 1000);
 			} // 인증 코드 제한 시간
-		</script>
-		
+		</script>	
 		<script type="text/javascript">
 			$('#form').validate({
 				rules : {
