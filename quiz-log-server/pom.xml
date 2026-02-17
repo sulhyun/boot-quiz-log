@@ -50,12 +50,6 @@
 			<artifactId>spring-boot-starter-test</artifactId>
 			<scope>test</scope>
 		</dependency>
-		<!-- 코드 수정 후 서버 재시작 -->
-		<dependency>
-		    <groupId>org.springframework.boot</groupId>
-		    <artifactId>spring-boot-devtools</artifactId>
-		    <optional>true</optional>
-		</dependency>
 		<dependency>
 	        <groupId>nz.net.ultraq.thymeleaf</groupId>
 	        <artifactId>thymeleaf-layout-dialect</artifactId>
